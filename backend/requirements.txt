@@ -4,3 +4,4 @@ sqlalchemy==2.0.25
 pymysql==1.1.0
 pandas==2.2.0
 pytest==8.0.0
+httpx==0.23.3
