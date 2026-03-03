@@ -1,0 +1,8 @@
+{
+  "active": "v1",
+  "available": [
+    "v1",
+    "v2"
+  ],
+  "notes": "Cambiar a v2 cuando esté lista la versión entrenada"
+}
