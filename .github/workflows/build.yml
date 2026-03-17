@@ -54,7 +54,7 @@ jobs:
           args: >
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=backend/app
-            -Dsonar.tests=test
+            -Dsonar.tests=backend/test
             -Dsonar.projectBaseDir=.
 
       - name: Upload coverage.xml artifact
