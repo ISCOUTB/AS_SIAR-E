@@ -1,18 +1,26 @@
-name: Build and Coverage
+
+name: Build and Sonar
 
 on:
   push:
-    branches: ["**"]
+    branches:
+      - master
+      - main
+      - backend
+      - frontend
   pull_request:
-    branches: ["**"]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  test:
+  build-and-sonar:
+    name: Tests + SonarCloud
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (full)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -36,6 +44,12 @@ jobs:
         run: |
           chmod +x scripts/run_tests_with_coverage.sh
           ./scripts/run_tests_with_coverage.sh
+
+      - name: SonarQube / SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Upload coverage.xml artifact
         uses: actions/upload-artifact@v4
