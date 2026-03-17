@@ -20,7 +20,11 @@ def _clip01(x):
     return np.clip(x, 0.0, 1.0)
 
 def _to_level(p, p70=0.3, p90=0.6):
-    return "ALTO" if p >= p90 else ("MEDIO" if p >= p70 else "BAJO")
+    if p >= p90:
+        return "ALTO"
+    if p >= p70:
+        return "MEDIO"
+    return "BAJO"
 
 # Regla heurística: combina señales de riesgo en [0,1]
 
@@ -82,9 +86,10 @@ def explain_rows(df: pd.DataFrame):
 
     reasons = []
     import numpy as np
-    M = np.vstack([c.values for c in comps]).T  # n x k
-    for row in M:
-        contribs = {names[i]: float(row[i] * list(weights.values())[i]) for i in range(len(names))}
+    matrix = np.vstack([c.values for c in comps]).T  # n x k
+    weights_values = list(weights.values())
+    for vals in matrix:
+        contribs = {names[i]: float(vals[i] * weights_values[i]) for i in range(len(names))}
         # Top 5 contribuciones absolutas
         top = dict(sorted(contribs.items(), key=lambda x: x[1], reverse=True)[:5])
         reasons.append(top)
