@@ -3,7 +3,10 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://app:app123@db:3306/alerts")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # No hardcoded credentials — usar SQLite por defecto en entorno local
+    DATABASE_URL = "sqlite:///./dev.db"
 
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):

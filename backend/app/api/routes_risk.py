@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Annotated
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.db import get_session
@@ -22,7 +22,7 @@ class RiskScoreOut(BaseModel):
     razones: Dict[str, float]
 
 @router.post("/predict", response_model=List[RiskScoreOut])
-def predict(req: PredictRequest, db: Session = Depends(get_session)):
+def predict(req: PredictRequest, db: Annotated[Session, Depends(get_session)] = Depends(get_session)):
     infer = get_active_infer_module()
     df = fetch_features_df(db, req.periodo, req.student_ids)
     if df.empty:
@@ -39,7 +39,7 @@ def predict(req: PredictRequest, db: Session = Depends(get_session)):
     ]
 
 @router.get("/alerts/{periodo}", response_model=List[RiskScoreOut])
-def get_alerts(periodo: str, limit: int = 200, db: Session = Depends(get_session)):
+def get_alerts(periodo: str, limit: int = 200, db: Annotated[Session, Depends(get_session)] = Depends(get_session)):
     rows = db.execute(text("""
         SELECT student_id, periodo, score, nivel, prioridad, razones_json
         FROM risk_scores WHERE periodo=:per
