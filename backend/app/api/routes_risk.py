@@ -22,7 +22,7 @@ class RiskScoreOut(BaseModel):
     razones: Dict[str, float]
 
 @router.post("/predict", response_model=List[RiskScoreOut])
-def predict(req: PredictRequest, db: Annotated[Session, Depends(get_session)] = Depends(get_session)):
+def predict(req: PredictRequest, db: Annotated[Session, Depends(get_session)]):
     infer = get_active_infer_module()
     df = fetch_features_df(db, req.periodo, req.student_ids)
     if df.empty:
@@ -39,7 +39,7 @@ def predict(req: PredictRequest, db: Annotated[Session, Depends(get_session)] = 
     ]
 
 @router.get("/alerts/{periodo}", response_model=List[RiskScoreOut])
-def get_alerts(periodo: str, limit: int = 200, db: Annotated[Session, Depends(get_session)] = Depends(get_session)):
+def get_alerts(periodo: str, db: Annotated[Session, Depends(get_session)], limit: int = 200):
     rows = db.execute(text("""
         SELECT student_id, periodo, score, nivel, prioridad, razones_json
         FROM risk_scores WHERE periodo=:per
@@ -75,9 +75,9 @@ def save_scores(db: Session, df_scored, razones_list, model_version: str):
         db.execute(text("""
             INSERT INTO risk_scores (student_id, periodo, score, nivel, prioridad, razones_json, model_version, scored_at)
             VALUES (:sid, :per, :sc, :niv, :pri, CAST(:rz AS JSON), :mv, NOW())
-        """), dict(
-            sid=row["student_id"], per=row["periodo"], sc=float(row["score"]),
-            niv=row["nivel"], pri=float(row["prioridad"]),
-            rz=json.dumps(razones, ensure_ascii=False), mv=model_version
-        ))
+        """), {
+            "sid": row["student_id"], "per": row["periodo"], "sc": float(row["score"]),
+            "niv": row["nivel"], "pri": float(row["prioridad"]),
+            "rz": json.dumps(razones, ensure_ascii=False), "mv": model_version
+        })
     db.commit()
