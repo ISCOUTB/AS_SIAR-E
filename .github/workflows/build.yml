@@ -45,17 +45,20 @@ jobs:
           ./scripts/run_tests_with_coverage.sh
 
       - name: SonarQube / SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v5 # v5 estable; cambia si quieres v6
+        uses: sonarsource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+          SONAR_ORGANIZATION: isco-utb
+          SONAR_PROJECT_KEY: ISCOUTB_AS_SIAR-E
         with:
           args: >
-            -Dsonar.organization=isco-utb
-            -Dsonar.projectKey=ISCOUTB_AS_SIAR-E
+            -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=backend/app
             -Dsonar.tests=backend/test
-            -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.projectBaseDir=.
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
 
       - name: Upload coverage.xml artifact
         uses: actions/upload-artifact@v4
