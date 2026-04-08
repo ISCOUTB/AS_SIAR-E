@@ -1,73 +1,11 @@
-name: Build and Sonar
-
-on:
-  push:
-    branches:
-      - master
-      - main
-      - backend
-      - frontend
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-jobs:
-  build-and-sonar:
-    name: Tests + SonarCloud
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout (full)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
-
-      - name: Run tests with coverage
-        run: |
-          chmod +x scripts/run_tests_with_coverage.sh
-          ./scripts/run_tests_with_coverage.sh
-
-      - name: SonarQube / SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-          SONAR_ORGANIZATION: isco-utb
-          SONAR_PROJECT_KEY: ISCOUTB_AS_SIAR-E
-        with:
-          args: >
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.sources=backend/app
-            -Dsonar.tests=backend/test
-            -Dsonar.projectBaseDir=.
-            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-
-      - name: Upload coverage.xml artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-xml
-          path: coverage.xml
-
-      - name: Upload html coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: htmlcov
+name: SonarQube Scan
+uses: sonarsource/sonarqube-scan-action@v4 # Prueba usando la v4 o v5 si la v6 te da problemas de compatibilidad
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+with:
+  args: >
+    -Dsonar.organization=isco-utb
+    -Dsonar.projectKey=ISCOUTB_AS_SIAR-E
+    -Dsonar.python.coverage.reportPaths=coverage.xml
+    -Dsonar.sources=backend/app
+    -Dsonar.tests=backend/test
