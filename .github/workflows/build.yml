@@ -55,7 +55,7 @@ jobs:
           args: >
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=backend/app
-            -Dsonar.tests=test
+            -Dsonar.tests=backend/test
             -Dsonar.projectBaseDir=.
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
