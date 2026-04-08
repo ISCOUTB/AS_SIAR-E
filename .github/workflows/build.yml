@@ -47,7 +47,7 @@ jobs:
       - name: SonarQube / SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
         env:
-          SONAR_TOKEN: ${{ secrets.AS_SIAR }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
           SONAR_ORGANIZATION: isco-utb
           SONAR_PROJECT_KEY: ISCOUTB_AS_SIAR-E
@@ -55,7 +55,7 @@ jobs:
           args: >
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=backend/app
-            -Dsonar.tests=backend/test
+            -Dsonar.tests=test
             -Dsonar.projectBaseDir=.
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
