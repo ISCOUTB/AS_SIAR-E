@@ -30,13 +30,16 @@ def predict(req: PredictRequest, db: Annotated[Session, Depends(get_session)]):
     scored = infer.score_batch(df)
     razones = infer.explain_rows(df) if hasattr(infer, "explain_rows") else [{} for _ in range(len(scored))]
     save_scores(db, scored, razones, model_version=infer.__version__)
-    return [
-        RiskScoreOut(
-            student_id=r["student_id"], periodo=r["periodo"],
-            score=float(r["score"]), nivel=r["nivel"], prioridad=float(r["prioridad"]),
-            razones=razones[i]
-        ) for i, r in scored.iterrows()
-    ]
+    result = []
+    for (idx, r), razon in zip(scored.iterrows(), razones):
+        result.append(
+            RiskScoreOut(
+                student_id=r["student_id"], periodo=r["periodo"],
+                score=float(r["score"]), nivel=r["nivel"], prioridad=float(r["prioridad"]),
+                razones=razon
+            )
+        )
+    return result
 
 @router.get("/alerts/{periodo}", response_model=List[RiskScoreOut])
 def get_alerts(periodo: str, db: Annotated[Session, Depends(get_session)], limit: int = 200):
