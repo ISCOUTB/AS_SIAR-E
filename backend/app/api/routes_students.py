@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -10,7 +9,7 @@ router = APIRouter()
 @router.get("")
 def list_students(db: Annotated[Session, Depends(get_session)], limit: int = 50, offset: int = 0):
     rows = db.execute(
-        text("SELECT student_id, nombre, programa, cohorte FROM students LIMIT :lim OFFSET :off"),
+        text("SELECT student_id, nombre, programa, cohorte, semestre, notas, asistencia, risk_score, plataforma FROM students LIMIT :lim OFFSET :off"),
         {"lim": limit, "off": offset}
     ).mappings().all()
     return list(rows)
@@ -19,3 +18,12 @@ def list_students(db: Annotated[Session, Depends(get_session)], limit: int = 50,
 def get_student(student_id: str, db: Annotated[Session, Depends(get_session)]):
     row = db.execute(text("SELECT * FROM students WHERE student_id=:sid"), {"sid": student_id}).mappings().first()
     return row or {}
+
+@router.put("/{student_id}/intervenir")
+def intervenir_student(student_id: str, db: Annotated[Session, Depends(get_session)]):
+    db.execute(
+        text("UPDATE students SET intervenido = 1 WHERE student_id = :sid"),
+        {"sid": student_id}
+    )
+    db.commit()
+    return {"success": True, "student_id": student_id}

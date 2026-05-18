@@ -1,6 +1,8 @@
 
 # AS_SIAR-E
-
+# correr front : cd flutter-frontend\siar_app , flutter run -d web-server --web-port 8080
+# correr back: uvicorn app.main:app --reload
+flutter run -d web-server --web-port 8080
 Backend Python (FastAPI) para gestión de estudiantes y predicción de riesgo. Expone APIs REST y sirve inferencias de modelos ML versionados.
 
 Descripción
